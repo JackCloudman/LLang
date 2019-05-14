@@ -13,23 +13,25 @@ extern void init();
 %%
 list:
   | list'\n'
-        | list exp '\n'  {LL_FUNC_PRINT($2,"\n");}
+        | list exp '\n'  {LL_FUNC_PRINT($2,"\n");printf(">>> ");}
   ;
 exp:      object         { $$ = $1;}
         | exp '+' exp     { $$ = LL_FUNC_ADD($1,$3); }
-        | exp '-' exp     { /*$$ = Complejo_sub($1,$3);*/  }
-        | exp '*' exp     { /*$$ = Complejo_mul($1,$3); */ }
-        | exp '/' exp     { /*$$ = Complejo_div($1,$3);*/  }
+        | exp '-' exp     { $$ = LL_FUNC_SUB($1,$3);  }
+        | exp '*' exp     { $$ = LL_FUNC_MUL($1,$3);}
+        | exp '/' exp     { $$ = LL_FUNC_DIV($1,$3);  }
         | '(' exp ')'     { $$ = $2;}
   ;
 %%
 #include <stdio.h>
 #include <ctype.h>
 char *progname;
-void main (int argc, char *argv[]){
+int main (int argc, char *argv[]){
   init();
+  printf(">>> ");
   progname=argv[0];
     yyparse ();
+  return 0;
 }
 void yyerror (char *s) {
   warning(s, (char *) 0);

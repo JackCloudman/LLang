@@ -22,7 +22,8 @@ LLObject* LLList_String(LLObject* o){
     s = (LLStringObject*)(aux->o->to_String(aux->o));
     buffer = realloc(buffer,strlen(buffer)+(s->len)+2);
     j+=sprintf(buffer+j,"%s]",s->o_sval);
-    j+=sprintf(buffer+j,"\"\0");
+    buffer[j] = '\"';
+    buffer[j+1] = '\0';
     return (LLObject*)LLString_Make(buffer);
 }
 LLEntryListObject* LLEntryList_Make(){

@@ -27,4 +27,14 @@ LLObject* LLInt_ADD(LLObject* a,LLObject* b){
   return (LLObject*)LLInt_Make(((LLIntObject*)a)->o_val+((LLIntObject*)b)->o_val);
 }
 
+LLObject* LLInt_SUB(LLObject* a,LLObject* b){
+    return (LLObject*)LLInt_Make((((LLIntObject*)a)->o_val)-(((LLIntObject*)b)->o_val));
+}
+LLObject* LLInt_MUL(LLObject* a,LLObject* b){
+    return (LLObject*)LLInt_Make(((LLIntObject*)a)->o_val*((LLIntObject*)b)->o_val);
+}
+LLObject* LLInt_DIV(LLObject* a,LLObject* b){
+    return (LLObject*)LLInt_Make(((LLIntObject*)a)->o_val/((LLIntObject*)b)->o_val);
+}
+
 

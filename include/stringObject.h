@@ -14,4 +14,5 @@
   LLStringObject* LLString_Make(char*);
   LLObject* LLString_CAT(LLObject*,LLObject*);
   LLObject* LLString_String(LLObject*);
+  LLObject* LLString_MUL(LLObject*,LLObject*);
 #endif

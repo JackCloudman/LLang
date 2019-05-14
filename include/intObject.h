@@ -12,4 +12,7 @@ LLTypeObject* LLIntTypeObject;
   int LLInt_print(LLObject*);
   LLIntObject* LLInt_Make(int val);
   LLObject* LLInt_ADD(LLObject*,LLObject*);
+LLObject* LLInt_SUB(LLObject*,LLObject*);
+LLObject* LLInt_MUL(LLObject*,LLObject*);
+LLObject* LLInt_DIV(LLObject*,LLObject*);
 #endif
