@@ -18,6 +18,7 @@ digits [0-9]
 number (0|[1-9]+{digits}*)\.?{digits}*
 STRING \"(\\.|[^"\\])*\"
 VAR [_]*[a-zA-Z][a-zA-Z0-9_]*
+EXIT exit[\(][\)]
 %%
 {VAR} {
   Symbol *s;
@@ -30,16 +31,17 @@ VAR [_]*[a-zA-Z][a-zA-Z0-9_]*
  int dato;
  RmWs(yytext);
  sscanf(yytext,"%d",&dato);
- yylval.val=(LLObject*) LLInt_Make(dato);
+ yylval.sym =  install("",object,(LLObject*) LLInt_Make(dato));
  return object;}
 {op} |
 \n {return *yytext;}
 {ws} { /* Do nothing */ }
 . { /* Do nothing */ }
 {STRING} {
-    yylval.val =  (LLObject*)LLString_Make(yytext);
+    yylval.sym =  install("",object,(LLObject*)LLString_Make(yytext));
     return object;
   }
+{EXIT} {return EXIT;}
 %%
 void RmWs(char* str) {
   int i = 0, j = 0;

@@ -3,59 +3,93 @@
 #include "Lala.h"
 #include "abstract.h"
 #include "Symbol.h"
+extern void *code(Inst);
+#define code2(c1,c2) code(c1); code(c2);
+#define code3(c1,c2,c3) code(c1); code(c2); code(c3);
+
+void execerror(char *s, char *t);
 void yyerror (char *s);
 int yylex ();
 void warning(char *s, char *t);
 extern void init();
+extern void execute();
+extern void initcode();
+extern FILE *yyin;
+int readfile = 0;
 %}
 %union {
-  LLObject* val;
   Symbol *sym;
+  Inst *inst;
 }
-%token <val> object
-%token <sym> VAR BLTIN INDEF
-%type <val> exp asgn
+%token <sym> object VAR BLTIN INDEF EXIT
 
 %right '='
 %left '+' '-'
 %left '*' '/'
+%left UNARYMINUS
 %%
 list:
   | list'\n'
-  | list exp '\n'  {LL_FUNC_PRINT($2,"\n");printf(">>> ");}
-  | list asgn '\n' {printf(">>> ");}
-  | list error '\n' {yyerrok;}
+  | list asgn '\n' {code2((Inst)pop,STOP);return 1;}
+  | list exp '\n'  { code2(print,STOP);return 1;}
+  | list error '\n' {initcode();printf(">>> ");yyerrok;}
   ;
-asgn: VAR '=' exp {$$=$1->u.val=$3; $1->type=VAR;}
+asgn: VAR '=' exp {code3(varpush,(Inst)$1,assign);}
   ;
-exp:      object         { $$ = $1;}
-        | VAR     {if($1->type == INDEF)
-                    printf("Error: '%s' no esta definido\n",$1->name);
-                  $$ = $1->u.val;}
-        | asgn
-        | exp '+' exp     { $$ = LL_FUNC_ADD($1,$3); }
-        | exp '-' exp     { $$ = LL_FUNC_SUB($1,$3);  }
-        | exp '*' exp     { $$ = LL_FUNC_MUL($1,$3);}
-        | exp '/' exp     { $$ = LL_FUNC_DIV($1,$3);  }
-        | '(' exp ')'     { $$ = $2;}
-        |BLTIN  '(' exp ')' { $$=(*($1->u.ptr))($3);}
+exp:  object  { code2(constpush,(Inst)$1);}
+      | VAR       {code3(varpush,(Inst)$1,eval);}
+      | asgn
+      | exp '+' exp     { code(addo); }
+      | exp '-' exp     { code(subo);  }
+      | exp '*' exp     { code(mulo);}
+      | exp '/' exp     { code(divo);}
+      | '(' exp ')'     { }
+      |BLTIN  '(' exp ')' {code2(bltin,(Inst)$1->u.ptr);}
+      |'-' exp %prec UNARYMINUS {code(negate);}
+      | EXIT {exit(0);}
   ;
 %%
 #include <stdio.h>
 #include <ctype.h>
+#include <signal.h>
+#include <setjmp.h>
+
 char *progname;
+jmp_buf begin;
 int main (int argc, char *argv[]){
-  init();
-  printf(">>> ");
   progname=argv[0];
-    yyparse ();
+  init();
+  if(argc==1){
+    printf("Lala Lang v1.2 \n[GCC 8.2.1 20181127]\n");
+    setjmp(begin);
+    printf(">>> ");
+    for(initcode(); yyparse (); initcode()){
+      execute(prog);
+      printf(">>> ");
+    }
+  }
+  if(argc==2){
+    readfile = 1;
+    yyin = fopen(argv[1],"r");
+    for(initcode();yyparse();initcode()){
+      execute(prog);
+    }
+  }
   return 0;
 }
 void yyerror (char *s) {
   warning(s, (char *) 0);
 }
 void warning(char *s, char *t){
-  fprintf (stderr, "%s: %s", progname, s);
+  fprintf (stderr, "%s",s);
   if(t)
-    fprintf (stderr, " %s", t);
+    fprintf (stderr, "%s", t);
+  fprintf(stderr,"\n");
+}
+void execerror(char *s, char *t)
+{
+	warning(s, t);
+  if(readfile)
+    exit(1);
+  longjmp(begin, 0);
 }
