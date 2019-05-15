@@ -175,7 +175,7 @@ LLEntryListObject* LLList_merge(LLEntryListObject* e1,LLEntryListObject* e2){
   LLListObject *aux;
   LLEntryListObject *n;
   n = 0;
-  if(e1!=0){
+  if(e1->l_val!=0){
     aux = e1->l_val;
     while(aux->next!=(e1->l_val)){
       n = LLList_append(n,aux->o);
@@ -183,7 +183,7 @@ LLEntryListObject* LLList_merge(LLEntryListObject* e1,LLEntryListObject* e2){
     }
     n = LLList_append(n,aux->o);
   }
-  if(e2!=0){
+  if(e2->l_val!=0){
     aux = e2->l_val;
     while(aux->next!=(e2->l_val)){
       n = LLList_append(n,aux->o);
@@ -196,7 +196,7 @@ LLEntryListObject* LLList_merge(LLEntryListObject* e1,LLEntryListObject* e2){
 int LLList_print(LLObject* o){
   LLEntryListObject* e = (LLEntryListObject*)o;
   if(e==0||e->l_val==0){
-    printf("[]\n");
+    printf("[]");
     return 0;
   }
   LLListObject *aux = e->l_val;

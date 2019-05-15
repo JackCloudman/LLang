@@ -119,8 +119,53 @@ void bltin( )/*  evaluar un predefinido en el tope de la pila  */
     d.val  =   (*(LLObject*   (*)())(*pc++))(d.val);
     push(d);
 }
+void makeArray(){
+  Datum d;
+  LLEntryListObject* l = 0;
+  Datum* savestackp = stackp;
+  execute(pc);
+  while(stackp > savestackp){
+    d = pop();
+    l = LLList_insert(l,d.val);
+  }
+  if(l == 0){
+    l = LLEntryList_Make();
+  }
+  d.val = (LLObject*)l;
+  push(d);
+  *pc++;
+}
 
+void aArray(){
+  Datum d1,d2;
+  d2 = pop();
+  d1 = pop();
+  d1.val = LL_FUNC_AACCESS(d1.val,d2.val);
+  push(d1);
+}
+void ChangeValue(){
+  Datum nd,index,a;//New dato,index, array
+  nd = pop();
+  index = pop();
+  a = pop(); //Save array
+  LL_FUNC_AREPLACE(a.val,index.val,nd.val);
+  push(nd);
+}
+void getSubArray(){
+  Datum start,end,lista;
 
+  end = pop();
+  start = pop();
+  lista = pop();
+
+  lista.val = LL_FUNC_GETSUBARRAY(lista.val,start.val,end.val);
+  push(lista);
+}
+void emptypush(){
+  Datum d;
+  d.val = 0;
+  push(d);
+}
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {
     Inst *oprogp = progp;
