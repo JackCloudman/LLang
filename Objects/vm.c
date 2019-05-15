@@ -136,6 +136,13 @@ void makeArray(){
   *pc++;
 }
 
+void aArray(){
+  Datum d1,d2;
+  d2 = pop();
+  d1 = pop();
+  d1.val = LL_FUNC_AACCESS(d1.val,d2.val);
+  push(d1);
+}
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {
     Inst *oprogp = progp;

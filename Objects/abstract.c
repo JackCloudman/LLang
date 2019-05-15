@@ -65,7 +65,17 @@ LLObject* LL_FUNC_NEGATE(LLObject* a){
         execerror("Operador 'unary -' no esta implementado", NULL);
     return result;
 }
-
+LLObject* LL_FUNC_AACCESS(LLObject* l,LLObject* i){
+  LLObject* result = 0;
+  if((l->ob_type == LLListTypeObject)&&(i->ob_type==LLIntTypeObject)){
+    result = LLList_getElement((LLEntryListObject*)l,((LLIntObject*)i)->o_val);
+    if(!result)
+      execerror("IndexError: list index out of range", NULL);
+  }
+  if(result==LL_NOT_IMPLEMENTED)
+      execerror("Operador 'Access array [ ]' no esta implementado", NULL);
+  return result;
+}
 int LL_FUNC_PRINT(LLObject* o,char* end){
     if(o==0){
         return 0;

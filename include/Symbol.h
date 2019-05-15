@@ -31,5 +31,6 @@ extern  Inst prog[];
 
 extern  void eval(), addo(), subo(), mulo(), divo(),negate();
 extern void  assign(), bltin(), varpush(), constpush(), print(),makeArray(),execute(Inst* p);
+extern void aArray();
 
 #endif

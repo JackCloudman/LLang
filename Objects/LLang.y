@@ -56,6 +56,7 @@ exp:  object  { code2(constpush,(Inst)$1);}
       |'-' exp %prec UNARYMINUS {code(negate);}
       | EXIT {exit(0);}
       | initarray '['arraylist']' {code(STOP);}
+      | exp '[' exp ']' {code(aArray);}
   ;
 %%
 #include <stdio.h>
