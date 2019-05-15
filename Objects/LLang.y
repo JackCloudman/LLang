@@ -14,6 +14,7 @@ void warning(char *s, char *t);
 extern void init();
 extern void execute();
 extern void initcode();
+extern Inst *progp;
 extern FILE *yyin;
 int readfile = 0;
 %}
@@ -22,6 +23,7 @@ int readfile = 0;
   Inst *inst;
 }
 %token <sym> object VAR BLTIN INDEF EXIT
+%type<inst> arraylist initarray
 
 %right '='
 %left '+' '-'
@@ -34,6 +36,12 @@ list:
   | list exp '\n'  { code2(print,STOP);return 1;}
   | list error '\n' {initcode();printf(">>> ");yyerrok;}
   ;
+initarray: {code(makeArray);}
+;
+arraylist: arraylist','arraylist {}
+      | exp {}
+      | {$$=progp;}
+;
 asgn: VAR '=' exp {code3(varpush,(Inst)$1,assign);}
   ;
 exp:  object  { code2(constpush,(Inst)$1);}
@@ -47,6 +55,7 @@ exp:  object  { code2(constpush,(Inst)$1);}
       |BLTIN  '(' exp ')' {code2(bltin,(Inst)$1->u.ptr);}
       |'-' exp %prec UNARYMINUS {code(negate);}
       | EXIT {exit(0);}
+      | initarray '['arraylist']' {code(STOP);}
   ;
 %%
 #include <stdio.h>

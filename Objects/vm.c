@@ -119,7 +119,22 @@ void bltin( )/*  evaluar un predefinido en el tope de la pila  */
     d.val  =   (*(LLObject*   (*)())(*pc++))(d.val);
     push(d);
 }
-
+void makeArray(){
+  Datum d;
+  LLEntryListObject* l = 0;
+  Datum* savestackp = stackp;
+  execute(pc);
+  while(stackp > savestackp){
+    d = pop();
+    l = LLList_insert(l,d.val);
+  }
+  if(l == 0){
+    l = LLEntryList_Make();
+  }
+  d.val = (LLObject*)l;
+  push(d);
+  *pc++;
+}
 
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {

@@ -30,6 +30,6 @@ typedef void (*Inst)();  /* instrucción de máquina */
 extern  Inst prog[];
 
 extern  void eval(), addo(), subo(), mulo(), divo(),negate();
-extern void  assign(), bltin(), varpush(), constpush(), print();
+extern void  assign(), bltin(), varpush(), constpush(), print(),makeArray(),execute(Inst* p);
 
 #endif
