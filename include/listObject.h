@@ -24,5 +24,4 @@
   LLEntryListObject* LLList_getrange(LLEntryListObject*,int*,int*);
   LLIntObject* LLList_getsize(LLEntryListObject*);
   LLObject* LLList_String(LLObject*);
-  LLObject* LL_FUNC_AREPLACE(LLObject*,LLObject*,LLObject*);
 #endif

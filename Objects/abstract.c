@@ -88,6 +88,35 @@ LLObject* LL_FUNC_AREPLACE(LLObject* l,LLObject* i,LLObject*o){
       execerror("Operador 'Access array [ ]' no esta implementado", NULL);
   return o;
 }
+
+LLObject* LL_FUNC_GETSUBARRAY(LLObject* l,LLObject* start,LLObject* end){
+  LLObject* result = 0;
+  int* s = 0;
+  int* e = 0;
+  if(l->ob_type == LLListTypeObject){
+    if(start){
+      if(start->ob_type==LLIntTypeObject){
+        s = &(((LLIntObject*)start)->o_val);
+      }else{
+        execerror("Error Index Access ' [ ] start'", NULL);
+      }
+    }
+    if(end){
+      if(end->ob_type==LLIntTypeObject){
+        e = &(((LLIntObject*)end)->o_val);
+      }else{
+        execerror("Error Index Access ' [ ] end'", NULL);
+      }
+    }
+    result = (LLObject*)LLList_getrange((LLEntryListObject*)l,s,e);
+    if(!result)
+      return (LLObject*)LLEntryList_Make();
+  }
+  if(result==LL_NOT_IMPLEMENTED)
+      execerror("Operador 'Access array [ ]' no esta implementado", NULL);
+  return result;
+}
+
 int LL_FUNC_PRINT(LLObject* o,char* end){
     if(o==0){
         return 0;

@@ -151,6 +151,21 @@ void ChangeValue(){
   LL_FUNC_AREPLACE(a.val,index.val,nd.val);
   push(nd);
 }
+void getSubArray(){
+  Datum start,end,lista;
+
+  end = pop();
+  start = pop();
+  lista = pop();
+
+  lista.val = LL_FUNC_GETSUBARRAY(lista.val,start.val,end.val);
+  push(lista);
+}
+void emptypush(){
+  Datum d;
+  d.val = 0;
+  push(d);
+}
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {
     Inst *oprogp = progp;

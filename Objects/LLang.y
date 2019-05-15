@@ -58,7 +58,11 @@ exp:  object  { code2(constpush,(Inst)$1);}
       | EXIT {exit(0);}
       | initarray '['arraylist']' {code(STOP);}
       | exp '[' exp ']' {code(aArray);}
+      | exp '[' index ':' index ']' {code(getSubArray);}
   ;
+index: exp {}
+| {code(emptypush);}
+;
 %%
 #include <stdio.h>
 #include <ctype.h>
@@ -71,7 +75,7 @@ int main (int argc, char *argv[]){
   progname=argv[0];
   init();
   if(argc==1){
-    printf("Lala Lang v1.2 \n[GCC 8.2.1 20181127]\n");
+    printf("Lala Lang v1.3 \n[GCC 8.2.1 20181127]\n");
     setjmp(begin);
     printf(">>> ");
     for(initcode(); yyparse (); initcode()){

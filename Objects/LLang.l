@@ -36,7 +36,7 @@ EXIT exit[\(][\)]
 {op} |
 \n {return *yytext;}
 {ws} { /* Do nothing */ }
-[\[|\]|,] {return *yytext;}
+[\[|\]|,:] {return *yytext;}
 . { /* Do nothing */ }
 {STRING} {
     yylval.sym =  install("",object,(LLObject*)LLString_Make(yytext));

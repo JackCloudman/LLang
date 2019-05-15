@@ -10,5 +10,7 @@ LLObject* LL_FUNC_DIV(LLObject*,LLObject*);
 LLObject* LL_FUNC_NEGATE(LLObject*);
 LLObject* LL_FUNC_AACCESS(LLObject*,LLObject*);
 int LL_FUNC_PRINT(LLObject*,char*);
+LLObject* LL_FUNC_AREPLACE(LLObject*,LLObject*,LLObject*);
+LLObject* LL_FUNC_GETSUBARRAY(LLObject*,LLObject*,LLObject*);
 #define LL_NOT_IMPLEMENTED 0
 #endif
