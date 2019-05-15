@@ -2,25 +2,43 @@
 #include <stdio.h>
 #include "Lala.h"
 #include "abstract.h"
+#include "Symbol.h"
 void yyerror (char *s);
 int yylex ();
 void warning(char *s, char *t);
 extern void init();
 %}
-%token object
+%union {
+  LLObject* val;
+  Symbol *sym;
+}
+%token <val> object
+%token <sym> VAR BLTIN INDEF
+%type <val> exp asgn
+
+%right '='
 %left '+' '-'
 %left '*' '/'
 %%
 list:
   | list'\n'
-        | list exp '\n'  {LL_FUNC_PRINT($2,"\n");printf(">>> ");}
+  | list exp '\n'  {LL_FUNC_PRINT($2,"\n");printf(">>> ");}
+  | list asgn '\n' {printf(">>> ");}
+  | list error '\n' {yyerrok;}
+  ;
+asgn: VAR '=' exp {$$=$1->u.val=$3; $1->type=VAR;}
   ;
 exp:      object         { $$ = $1;}
+        | VAR     {if($1->type == INDEF)
+                    printf("Error: '%s' no esta definido\n",$1->name);
+                  $$ = $1->u.val;}
+        | asgn
         | exp '+' exp     { $$ = LL_FUNC_ADD($1,$3); }
         | exp '-' exp     { $$ = LL_FUNC_SUB($1,$3);  }
         | exp '*' exp     { $$ = LL_FUNC_MUL($1,$3);}
         | exp '/' exp     { $$ = LL_FUNC_DIV($1,$3);  }
         | '(' exp ')'     { $$ = $2;}
+        |BLTIN  '(' exp ')' { $$=(*($1->u.ptr))($3);}
   ;
 %%
 #include <stdio.h>

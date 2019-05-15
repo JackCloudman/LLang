@@ -17,5 +17,4 @@
       LLObject_HEAD
     }LLObject;
   typedef LLObject *APLLObject;
-  #define YYSTYPE APLLObject
 #endif
