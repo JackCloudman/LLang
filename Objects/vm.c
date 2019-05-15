@@ -143,6 +143,14 @@ void aArray(){
   d1.val = LL_FUNC_AACCESS(d1.val,d2.val);
   push(d1);
 }
+void ChangeValue(){
+  Datum nd,index,a;//New dato,index, array
+  nd = pop();
+  index = pop();
+  a = pop(); //Save array
+  LL_FUNC_AREPLACE(a.val,index.val,nd.val);
+  push(nd);
+}
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {
     Inst *oprogp = progp;

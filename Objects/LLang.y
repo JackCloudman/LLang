@@ -43,7 +43,8 @@ arraylist: arraylist','arraylist {}
       | {$$=progp;}
 ;
 asgn: VAR '=' exp {code3(varpush,(Inst)$1,assign);}
-  ;
+    | exp '[' exp ']' '=' exp {code(ChangeValue);}
+;
 exp:  object  { code2(constpush,(Inst)$1);}
       | VAR       {code3(varpush,(Inst)$1,eval);}
       | asgn
