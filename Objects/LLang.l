@@ -15,7 +15,8 @@ extern YYSTYPE yylval;
 op [-+*\/()=]
 ws [ \t]+
 digits [0-9]
-number (0|[1-9]+{digits}*)\.?{digits}*
+intnum (0|[1-9]+{digits}*)
+floatnum (0|[1-9]+{digits}*)\.?{digits}*
 STRING \"(\\.|[^"\\])*\"
 VAR [_]*[a-zA-Z][a-zA-Z0-9_]*
 EXIT exit[\(][\)]
@@ -27,17 +28,24 @@ EXIT exit[\(][\)]
   yylval.sym = s;
   return s->type==INDEF?VAR:s->type;
 }
-{number} {
+{intnum} {
  int dato;
  RmWs(yytext);
  sscanf(yytext,"%d",&dato);
  yylval.sym =  install("",object,(LLObject*) LLInt_Make(dato));
  return object;}
+{floatnum} {
+ double dato;
+ RmWs(yytext);
+ sscanf(yytext,"%lf",&dato);
+ yylval.sym =  install("",object,(LLObject*) LLFloat_Make(dato));
+ return object;}
+
 {op} |
 \n {return *yytext;}
 {ws} { /* Do nothing */ }
 [\[|\]|,:] {return *yytext;}
-. { /* Do nothing */ }
+. { return *yytext; }
 {STRING} {
     yylval.sym =  install("",object,(LLObject*)LLString_Make(yytext));
     return object;

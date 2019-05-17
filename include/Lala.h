@@ -4,5 +4,6 @@
 #include "Object.h"
 #include "listObject.h"
 #include "intObject.h"
+#include "floatObject.h"
 #include "stringObject.h"
 #endif
