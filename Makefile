@@ -1,7 +1,7 @@
 Gram=Objects/y.tab.c Objetcs/y.tab.h
 
-all: $(Gram) Objects/lex.yy.c Objects/Object.c Objects/stringObject.c Objects/listObject.c Objects/intObject.c Objects/init.c Objects/abstract.c Objects/Symbol.c Objects/vm.c
-	@gcc -I include -o Lala Objects/y.tab.c Objects/lex.yy.c Objects/Object.c Objects/stringObject.c Objects/listObject.c Objects/intObject.c Objects/init.c Objects/abstract.c Objects/Symbol.c Objects/vm.c
+all: $(Gram) Objects/lex.yy.c Objects/Object.c Objects/stringObject.c Objects/listObject.c Objects/intObject.c Objects/init.c Objects/abstract.c Objects/Symbol.c Objects/vm.c Objects/floatObject.c Objects/boolObject.c Objects/noneObject.c
+	@gcc -I include -o Lala Objects/y.tab.c Objects/lex.yy.c Objects/Object.c Objects/stringObject.c Objects/listObject.c Objects/intObject.c Objects/init.c Objects/abstract.c Objects/Symbol.c Objects/vm.c Objects/floatObject.c Objects/boolObject.c Objects/noneObject.c
 	@echo Compiled
 
 $(Gram): Objects/LLang.y

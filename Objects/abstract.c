@@ -3,13 +3,74 @@
 extern LLTypeObject* LLIntTypeObject;
 extern void execerror(char *s, char *t);
 // Implementaciones
+LLObject* bop1(LLObject* a,LLObject* b){
+    LLObject *c,*d;
+    c = a;
+    d = b;
+    if(a->ob_type==LLIntTypeObject){
+        c = (LLObject*)LLFloat_Make((double)((LLIntObject*)a)->o_val);
+    }
+    if(b->ob_type==LLIntTypeObject){
+        d = (LLObject*)LLFloat_Make((double)((LLIntObject*)b)->o_val);
+    }
+    LLObject* result = LLFloat_ADD(c,d);
+    return result;
+}
+
+LLObject* bop2(LLObject* a,LLObject* b){
+    LLObject *c,*d;
+    c = a;
+    d = b;
+    if(a->ob_type==LLIntTypeObject){
+        c = (LLObject*)LLFloat_Make((double)((LLIntObject*)a)->o_val);
+    }
+    if(b->ob_type==LLIntTypeObject){
+        d = (LLObject*)LLFloat_Make((double)((LLIntObject*)b)->o_val);
+    }
+    LLObject* result = LLFloat_SUB(c,d);
+    return result;
+}
+
+
+LLObject* bop3(LLObject* a,LLObject* b){
+    LLObject *c,*d;
+    c = a;
+    d = b;
+    if(a->ob_type==LLIntTypeObject){
+        c = (LLObject*)LLFloat_Make((double)((LLIntObject*)a)->o_val);
+    }
+    if(b->ob_type==LLIntTypeObject){
+        d = (LLObject*)LLFloat_Make((double)((LLIntObject*)b)->o_val);
+    }
+    LLObject* result = LLFloat_MUL(c,d);
+    return result;
+}
+
+
+LLObject* bop4(LLObject* a,LLObject* b){
+    LLObject *c,*d;
+    c = a;
+    d = b;
+    if(a->ob_type==LLIntTypeObject){
+        c = (LLObject*)LLFloat_Make((double)((LLIntObject*)a)->o_val);
+    }
+    if(b->ob_type==LLIntTypeObject){
+        d = (LLObject*)LLFloat_Make((double)((LLIntObject*)b)->o_val);
+    }
+    LLObject* result = LLFloat_DIV(c,d);
+    return result;
+}
+
 LLObject* LL_FUNC_ADD(LLObject* a,LLObject* b) {
     LLObject *result = 0;
     if((a->ob_type == LLListTypeObject) && (b->ob_type == LLListTypeObject)){
-      result = (LLObject*) LLList_merge((LLEntryListObject*)b,(LLEntryListObject*)a);
+      result = (LLObject*) LLList_merge((LLEntryListObject*)a,(LLEntryListObject*)b);
     }else
-      if ((a->ob_type == LLIntTypeObject) && (b->ob_type == LLIntTypeObject)){
-          result = LLInt_ADD(a, b);
+        if((a->ob_type == LLIntTypeObject) && (b->ob_type == LLIntTypeObject)){
+            result = LLInt_ADD(a,b);
+        }
+        else if ((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)){
+          result = bop1(a,b);
       } else {
           if ((a->ob_type == LLStringTypeObject)&& (b->ob_type == LLStringTypeObject)) {
               result = LLString_CAT(a, b);
@@ -29,6 +90,8 @@ LLObject* LL_FUNC_SUB(LLObject* a,LLObject* b){
     LLObject* result = 0;
     if ((a->ob_type == LLIntTypeObject) && (b->ob_type == LLIntTypeObject)) {
         result = LLInt_SUB(a, b);
+    }else if ((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)){
+        result = bop2(a,b);
     }
     if(result==LL_NOT_IMPLEMENTED)
         execerror("Operador '-' no esta implementado", NULL);
@@ -38,6 +101,8 @@ LLObject* LL_FUNC_MUL(LLObject* a,LLObject* b){
     LLObject* result = 0;
     if ((a->ob_type == LLIntTypeObject) && (b->ob_type == LLIntTypeObject)) {
         result = LLInt_MUL(a, b);
+    }else if ((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)){
+        result = bop3(a,b);
     }else if ((a->ob_type == LLStringTypeObject)&&(b->ob_type == LLIntTypeObject)){
         result = LLString_MUL(a,b);
     }else if((a->ob_type == LLIntTypeObject)&&(b->ob_type == LLStringTypeObject)){
@@ -51,6 +116,8 @@ LLObject* LL_FUNC_DIV(LLObject* a,LLObject* b){
     LLObject* result = 0;
     if ((a->ob_type == LLIntTypeObject) && (b->ob_type == LLIntTypeObject)) {
         result = LLInt_DIV(a, b);
+    }else if ((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)){
+        result = bop4(a,b);
     }
     if(result==LL_NOT_IMPLEMENTED)
         execerror("Operador '/' no esta implementado", NULL);

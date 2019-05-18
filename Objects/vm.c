@@ -57,7 +57,7 @@ void addo( ){
     Datum d1,   d2;
     d2 = pop();
     d1 = pop();
-    d1.val = LL_FUNC_ADD(d2.val,d1.val);
+    d1.val = LL_FUNC_ADD(d1.val,d2.val);
     push(d1);
 }
 
