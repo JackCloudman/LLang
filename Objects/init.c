@@ -1,5 +1,16 @@
 #include "Lala.h"
+#include "abstract.h"
+#include "Symbol.h"
+#include "y.tab.h"
+static struct {	/*	Predefinidos */
+    char *name;
+    LLObject* (*func)();
+} builtins[] =	{
+        "len",	LL_FUNC_LEN,
+        0,	0
+};
 void init(){
+  Symbol *s;
   LLIntTypeObject = calloc(1,sizeof(LLTypeObject));
   LLStringTypeObject = calloc(1,sizeof(LLTypeObject));
   LLListTypeObject = calloc(1,sizeof(LLTypeObject));
@@ -25,5 +36,10 @@ void init(){
   c = malloc(sizeof(char)*14);
   strcpy(c,"<type 'None'>\0");
   LLNoneTypeObject->name = c;
+
+  for (int i = 0; builtins[i].name; i++) {
+        s = install(builtins[i].name, BLTIN, (LLObject*)LLNone_Make());
+        s->u.ptr = builtins[i].func;
+    }
   return;
 }

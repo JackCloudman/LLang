@@ -1,12 +1,12 @@
 %{
 #include <stdio.h>
 #include "Lala.h"
+#include "vm.h"
 #include "abstract.h"
 #include "Symbol.h"
 extern void *code(Inst);
 #define code2(c1,c2) code(c1); code(c2);
 #define code3(c1,c2,c3) code(c1); code(c2); code(c3);
-
 void execerror(char *s, char *t);
 void yyerror (char *s);
 int yylex ();
@@ -22,19 +22,25 @@ int readfile = 0;
   Symbol *sym;
   Inst *inst;
 }
-%token <sym> object VAR BLTIN INDEF EXIT
-%type<inst> arraylist initarray
+%token <sym> object VAR BLTIN INDEF EXIT IF ELSE PRINT WHILE
+%type<inst> arraylist initarray asgn exp stmt stmtlist cond if end while
 
 %right '='
+%left OR
+%left AND
+%left GT GE LT LE EQ NE
 %left '+' '-'
 %left '*' '/'
-%left UNARYMINUS
+%left UNARYMINUS NOT
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
 %%
 list:
   | list'\n'
   | list asgn '\n' {code2((Inst)pop,STOP);return 1;}
   | list exp '\n'  { code2(print,STOP);return 1;}
   | list error '\n' {initcode();printf(">>> ");yyerrok;}
+  | list stmt '\n' {code(STOP);return 1;}
   ;
 initarray: {code(makeArray);}
 ;
@@ -44,6 +50,35 @@ arraylist: arraylist','arraylist {}
 ;
 asgn: VAR '=' exp {code3(varpush,(Inst)$1,assign);}
     | exp '[' exp ']' '=' exp {code(ChangeValue);}
+;
+stmt: exp {code((Inst)pop);}
+    | PRINT exp { code(print); $$ = $2;}
+    | while cond stmt end {
+        ($1)[1] = (Inst)$3;
+        ($1)[2] = (Inst)$4;
+      }
+    | if cond stmt end  %prec LOWER_THAN_ELSE{
+        ($1)[1] = (Inst)$3;
+        ($1)[3] = (Inst)$4;
+      }
+    | if cond stmt end ELSE stmt end {
+        ($1)[1] = (Inst)$3;
+        ($1)[2] = (Inst)$6;
+        ($1)[3] = (Inst)$7;
+      }
+    | '{' stmtlist '}' {printf("...");$$=$2;}
+;
+cond: exp  {code(STOP);$$=$1;}
+;
+if: IF {$$=code(ifcode);code3(STOP,STOP,STOP);}
+  ;
+while: WHILE {$$= code3(whilecode,STOP,STOP);}
+  ;
+end:  '\n'{code(STOP);$$=progp;}
+  ;
+stmtlist: {$$=progp;}
+      | stmtlist '\n' {printf("... ");}
+      | stmtlist stmt
 ;
 exp:  object  { code2(constpush,(Inst)$1);}
       | VAR       {code3(varpush,(Inst)$1,eval);}
@@ -55,6 +90,15 @@ exp:  object  { code2(constpush,(Inst)$1);}
       | '(' exp ')'     { }
       |BLTIN  '(' exp ')' {code2(bltin,(Inst)$1->u.ptr);}
       |'-' exp %prec UNARYMINUS {code(negate);}
+      | exp GT exp {code(gt);}
+      | exp GE exp {code(ge);}
+      | exp LT exp {code(lt);}
+      | exp LE exp {code(le);}
+      | exp EQ exp {code(eq);}
+      | exp NE exp {code(ne);}
+      | exp AND exp {code(and);}
+      | exp OR exp {code(or);}
+      | NOT exp {$$=$2;code(not);}
       | EXIT {exit(0);}
       | initarray '['arraylist']' {code(STOP);}
       | exp '[' exp ']' {code(aArray);}
@@ -75,7 +119,7 @@ int main (int argc, char *argv[]){
   progname=argv[0];
   init();
   if(argc==1){
-    printf("Lala Lang v1.3 \n[GCC 8.2.1 20181127]\n");
+    printf("Lala Lang v1.4 \n[GCC 8.2.1 20181127]\n");
     setjmp(begin);
     printf(">>> ");
     for(initcode(); yyparse (); initcode()){

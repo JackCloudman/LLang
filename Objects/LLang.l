@@ -17,13 +17,26 @@ ws [ \t]+
 digits [0-9]
 intnum (0|[1-9]+{digits}*)
 floatnum (0|[1-9]+{digits}*)\.?{digits}*
-STRING \"(\\.|[^"\\])*\"
+STRING \"(\\.|[^"\\\n])*\"
 true True
 false False
 none None
 VAR [_]*[a-zA-Z][a-zA-Z0-9_]*
 EXIT exit[\(][\)]
 %%
+> {return GT;}
+>= {return GE;}
+\< {return LT;}
+\<= {return LE;}
+== {return EQ;}
+!= {return NE;}
+not {return NOT;}
+or {return OR;}
+and {return AND;}
+if {return IF;}
+while {return WHILE;}
+else {return ELSE;}
+print {return PRINT;}
 {true} {
     yylval.sym = install("",object,(LLObject*)LLBool_Make(1));
     return object;}

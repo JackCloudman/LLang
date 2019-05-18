@@ -49,3 +49,6 @@ LLObject* LLString_MUL(LLObject* s,LLObject* i){
     cad[k+1]='\0';
     return (LLObject*)LLString_Make(cad);
 }
+int LLString_EQ(LLObject*a,LLObject*b){
+    return strcmp(((LLStringObject*)a)->o_sval,((LLStringObject*)b)->o_sval)==0;
+}

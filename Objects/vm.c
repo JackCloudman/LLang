@@ -1,8 +1,5 @@
-#include "abstract.h"
-#include "Symbol.h"
-#include "Lala.h"
+#include "vm.h"
 #include "y.tab.h"
-
 extern void execerror(char *s, char *t);
 #define NSTACK  256
 static  Datum  stack[NSTACK];  /* la pila */
@@ -166,6 +163,103 @@ void emptypush(){
   d.val = 0;
   push(d);
 }
+
+void ifcode(){
+    Datum d;
+    Inst  *savepc  = pc;	/* parte then */
+    execute(savepc+3);	/*  condición   */
+    d  =  pop();
+    if(LL_CONDITION_EVAL(d.val))
+        execute(*((Inst   **)(savepc)));
+    else if(*((Inst  **)(savepc+1)))   /*  ¿parte else?   */
+        execute(*(( Inst  **) (savepc+1)));
+    pc  =  *((Inst  **)(savepc+2));	/*  siguiente proposición   */
+}
+
+void whilecode(){
+    Datum d;
+    Inst *savepc = pc;
+    execute(savepc+2);
+    d = pop();
+    while(LL_CONDITION_EVAL(d.val)){
+        execute(*((Inst  **)(savepc)));
+        execute(savepc+2);
+        d = pop();
+    }
+    pc = *((Inst  **)(savepc+1));
+}
+
+void gt() {
+    Datum d1,  d2;
+    d2 = pop();
+    d1 = pop();
+    d1.val  = LL_FUNC_GT(d1.val,d2.val);
+    push(d1);
+}
+
+void lt(){
+    Datum d1,  d2;
+    d2 = pop();
+    d1 = pop();
+    d1.val  = LL_FUNC_LT(d1.val,d2.val);
+    push(d1);
+}
+
+void ge( ) {
+    Datum d1,  d2;
+    d2  = pop();
+    d1  = pop();
+    d1.val = LL_FUNC_GE(d1.val,d2.val);
+    push(d1) ;
+}
+
+void le() {
+    Datum d1,  d2;
+    d2   =  pop();
+    d1   =  pop();
+    d1.val = LL_FUNC_LE(d1.val,d2.val);
+    push(d1);
+}
+
+void eq( ) {
+    Datum d1,  d2;
+    d2  = pop();
+    d1  = pop();
+    d1.val =LL_FUNC_EQ(d1.val,d2.val);
+    push(d1);
+}
+
+void ne(){
+    Datum d1, d2;
+    d2 = pop();
+    d1 = pop();
+    d1.val = LL_FUNC_NE(d1.val,d2.val);
+    push(d1);
+}
+
+void and(){
+    Datum d1,   d2;
+    d2   = pop();
+    d1   = pop();
+    d1.val = LL_FUNC_AND(d1.val,d2.val);
+    push(d1);
+}
+
+void or(){
+    Datum d1, d2;
+    d2 = pop();
+    d1 = pop();
+    d1.val = LL_FUNC_OR(d1.val,d2.val);
+    push(d1);
+}
+
+void not( ){
+    Datum d;
+    d = pop();
+    d.val = LL_FUNC_NOT(d.val);
+    push(d);
+}
+
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {
     Inst *oprogp = progp;
