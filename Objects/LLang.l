@@ -18,9 +18,21 @@ digits [0-9]
 intnum (0|[1-9]+{digits}*)
 floatnum (0|[1-9]+{digits}*)\.?{digits}*
 STRING \"(\\.|[^"\\])*\"
+true True
+false False
+none None
 VAR [_]*[a-zA-Z][a-zA-Z0-9_]*
 EXIT exit[\(][\)]
 %%
+{true} {
+    yylval.sym = install("",object,(LLObject*)LLBool_Make(1));
+    return object;}
+{false} {
+    yylval.sym = install("",object,(LLObject*)LLBool_Make(0));
+    return object;}
+{none} {
+    yylval.sym = install("",object,(LLObject*)LLNone_Make());
+    return object;}
 {VAR} {
   Symbol *s;
   if((s=lookup(yytext))==0)
@@ -40,7 +52,6 @@ EXIT exit[\(][\)]
  sscanf(yytext,"%lf",&dato);
  yylval.sym =  install("",object,(LLObject*) LLFloat_Make(dato));
  return object;}
-
 {op} |
 \n {return *yytext;}
 {ws} { /* Do nothing */ }
