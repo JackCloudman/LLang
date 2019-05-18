@@ -93,8 +93,10 @@ LLEntryListObject* LLList_getrange(LLEntryListObject* e,int* pos1,int* pos2){
         return NULL;
     }
   }
-  if(pos1 !=0 && pos2!=0 && *pos1==*pos2)
-    return 0;
+  //if(pos1 !=0 && pos2!=0 && *pos1==*pos2)
+    //return 0;
+  if(start==end)
+      return 0;
   while(start->next!=end){
     aux = LLList_append(aux,start->o);
     start = start->next;

@@ -275,3 +275,10 @@ LLObject* LL_FUNC_OR(LLObject*a,LLObject*b){
 LLObject* LL_FUNC_NOT(LLObject*a){
     return (LLObject*)LLBool_Make(!LL_CONDITION_EVAL(a));
 }
+LLObject* LL_FUNC_LEN(LLObject* a){
+    if(a->ob_type==LLListTypeObject)
+        return (LLObject*) LLInt_Make(((LLEntryListObject*)a)->len);
+    if(a->ob_type==LLStringTypeObject)
+        return (LLObject*) LLInt_Make(((LLStringObject*)a)->len);
+    execerror("BLINT 'len' no implementado", NULL);
+}

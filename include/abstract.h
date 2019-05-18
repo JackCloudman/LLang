@@ -22,5 +22,6 @@ LLObject* LL_FUNC_NE(LLObject*,LLObject*);
 LLObject* LL_FUNC_AND(LLObject*,LLObject*);
 LLObject* LL_FUNC_OR(LLObject*,LLObject*);
 LLObject* LL_FUNC_NOT(LLObject*);
+LLObject* LL_FUNC_LEN(LLObject*);
 #define LL_NOT_IMPLEMENTED 0
 #endif
