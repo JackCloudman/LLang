@@ -17,20 +17,5 @@ typedef struct Symbol {
 } Symbol;
 
 Symbol *install(char *s,int t, LLObject*), *lookup(char *s);
-
-typedef union Datum {   /* tipo de la pila del intérprete */
-    LLObject*  val;
-    Symbol  *sym; } Datum;
-
-extern Datum pop();
-
-typedef void (*Inst)();  /* instrucción de máquina */
-
-#define STOP    (Inst) 0
-extern  Inst prog[];
-
-extern  void eval(), addo(), subo(), mulo(), divo(),negate();
-extern void  assign(), bltin(), varpush(), constpush(), print(),makeArray(),execute(Inst* p);
-extern void aArray(),ChangeValue(),getSubArray(),emptypush();
-
+typedef void (*Inst)();
 #endif

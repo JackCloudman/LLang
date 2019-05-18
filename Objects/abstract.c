@@ -194,3 +194,84 @@ int LL_FUNC_PRINT(LLObject* o,char* end){
     }
     return 0;
 }
+double LL_CONDITION_EVAL(LLObject* o){
+    double result = 0;
+    if(o==NULL)
+        return result;
+    if(o->ob_type==LLBoolTypeObject){
+        result = (double)((LLBoolObject*)o)->o_val;
+    }
+    if(o->ob_type==LLListTypeObject){
+        result =(double) ((LLEntryListObject*)o)->len;
+    }
+    if(o->ob_type==LLIntTypeObject){
+        result =(double) ((LLIntObject*)o)->o_val;
+    }
+    if(o->ob_type==LLFloatTypeObject){
+        result = (((LLFloatObject*)o)->o_val);
+    }
+    if(o->ob_type==LLStringTypeObject){
+        result = (double)((LLStringObject*)o)->len;
+    }
+    return result;
+}
+LLObject* LL_FUNC_GT(LLObject* a,LLObject* b){
+    int r1,r2;
+    if((a->ob_type!=b->ob_type)&&((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)))
+        execerror("No se puede comparar!", NULL);
+    r1 = LL_CONDITION_EVAL(a);
+    r2 = LL_CONDITION_EVAL(b);
+    return (LLObject*)LLBool_Make(r1>r2);
+}
+LLObject* LL_FUNC_LT(LLObject*a,LLObject*b){
+    int r1,r2;
+    if((a->ob_type!=b->ob_type)&&((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)))
+        execerror("No se puede comparar!", NULL);
+    r1 = LL_CONDITION_EVAL(a);
+    r2 = LL_CONDITION_EVAL(b);
+    return (LLObject*)LLBool_Make(r1<r2);
+}
+LLObject* LL_FUNC_GE(LLObject*a,LLObject*b){
+    int r1,r2;
+    if((a->ob_type!=b->ob_type)&&((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)))
+        execerror("No se puede comparar!", NULL);
+    r1 = LL_CONDITION_EVAL(a);
+    r2 = LL_CONDITION_EVAL(b);
+    return (LLObject*)LLBool_Make(r1>=r2);
+}
+LLObject* LL_FUNC_LE(LLObject*a,LLObject*b){
+    int r1,r2;
+    if((a->ob_type!=b->ob_type)&&((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)))
+        execerror("No se puede comparar!", NULL);
+    r1 = LL_CONDITION_EVAL(a);
+    r2 = LL_CONDITION_EVAL(b);
+    return (LLObject*)LLBool_Make(r1<=r2);
+}
+LLObject* LL_FUNC_EQ(LLObject*a,LLObject*b){
+    int r1,r2;
+    if((a->ob_type!=b->ob_type)&&((a->ob_type == LLIntTypeObject || a->ob_type == LLFloatTypeObject ) && (b->ob_type == LLIntTypeObject || b->ob_type == LLFloatTypeObject)))
+        execerror("No se puede comparar!", NULL);
+    if(a->ob_type==LLStringTypeObject && b->ob_type==LLStringTypeObject){
+        return (LLObject*)LLBool_Make(LLString_EQ(a,b));
+    }
+    r1 = LL_CONDITION_EVAL(a);
+    r2 = LL_CONDITION_EVAL(b);
+    return (LLObject*)LLBool_Make(r1==r2);
+}
+LLObject* LL_FUNC_NE(LLObject*a,LLObject*b){
+    if(a->ob_type!=b->ob_type){
+        return (LLObject*)LLBool_Make(1);
+    }
+    LLBoolObject* r = (LLBoolObject*)LL_FUNC_EQ(a,b);
+    r->o_val = !(r->o_val);
+    return (LLObject*)r;
+}
+LLObject* LL_FUNC_AND(LLObject*a,LLObject*b){
+    return (LLObject*)LLBool_Make(LL_CONDITION_EVAL(a)&&LL_CONDITION_EVAL(b));
+}
+LLObject* LL_FUNC_OR(LLObject*a,LLObject*b){
+    return (LLObject*)LLBool_Make(LL_CONDITION_EVAL(a)||LL_CONDITION_EVAL(b));
+}
+LLObject* LL_FUNC_NOT(LLObject*a){
+    return (LLObject*)LLBool_Make(!LL_CONDITION_EVAL(a));
+}

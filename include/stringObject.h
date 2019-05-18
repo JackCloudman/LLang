@@ -15,4 +15,5 @@
   LLObject* LLString_CAT(LLObject*,LLObject*);
   LLObject* LLString_String(LLObject*);
   LLObject* LLString_MUL(LLObject*,LLObject*);
+  int LLString_EQ(LLObject*,LLObject*);
 #endif
