@@ -7,6 +7,9 @@
 extern void *code(Inst);
 #define code2(c1,c2) code(c1); code(c2);
 #define code3(c1,c2,c3) code(c1); code(c2); code(c3);
+
+int indef;//Para saber si un return esta fuera de una funcion
+void defnonly( char *s );
 void execerror(char *s, char *t);
 void yyerror (char *s);
 int yylex ();
@@ -16,14 +19,20 @@ extern void execute();
 extern void initcode();
 extern Inst *progp;
 extern FILE *yyin;
+extern Inst   *progbase;
 int readfile = 0;
 %}
 %union {
-  Symbol *sym;
-  Inst *inst;
+  Symbol *sym; //Tabla de simbolos
+  Inst *inst; //Instruccion de maquina virtual
+  int narg; //Numero de argumentos
 }
+%token <sym> FUNCTION RETURN FUNC PROC
+%token <narg> ARG
 %token <sym> object VAR BLTIN INDEF EXIT IF ELSE PRINT WHILE
-%type<inst> arraylist initarray asgn exp stmt stmtlist cond if end while
+%type<inst> arraylist initarray asgn exp stmt stmtlist cond if end while begin
+%type <sym> procname
+%type <narg> arglist
 
 %right '='
 %left OR
@@ -41,6 +50,7 @@ list:
   | list exp '\n'  { code2(print,STOP);return 1;}
   | list error '\n' {initcode();printf(">>> ");yyerrok;}
   | list stmt '\n' {code(STOP);return 1;}
+  | list defn '\n' {code(STOP);return 1;}
   ;
 initarray: {code(makeArray);}
 ;
@@ -50,6 +60,7 @@ arraylist: arraylist','arraylist {}
 ;
 asgn: VAR '=' exp {code3(varpush,(Inst)$1,assign);}
     | exp '[' exp ']' '=' exp {code(ChangeValue);}
+    | ARG '=' exp { defnonly("$"); code2(argassign,(Inst)$1); $$=$3;}
 ;
 stmt: exp {code((Inst)pop);}
     | PRINT exp { code(print); $$ = $2;}
@@ -67,6 +78,18 @@ stmt: exp {code((Inst)pop);}
         ($1)[3] = (Inst)$7;
       }
     | '{' stmtlist '}' {printf("...");$$=$2;}
+    | RETURN { defnonly("return"); code(procret); }
+    | RETURN exp {defnonly( "return" ); $$ = $2; code(funcret);}
+;
+defn:    FUNC procname { $2->type=FUNCTION; indef=1; }
+          '(' ')' stmt'\n' {code(procret); define($2); indef=0;}
+;
+arglist:  /* nada */   { $$ = 0; }
+    | exp                 { $$ = 1; }
+    | arglist ',' exp     { $$ = $1 + 1; }
+;
+procname: VAR
+   | FUNCTION
 ;
 cond: exp  {code(STOP);$$=$1;}
 ;
@@ -76,12 +99,15 @@ while: WHILE {$$= code3(whilecode,STOP,STOP);}
   ;
 end:  '\n'{code(STOP);$$=progp;}
   ;
+begin:  /* nada */          { $$ = progp; }
+;
 stmtlist: {$$=progp;}
       | stmtlist '\n' {printf("... ");}
       | stmtlist stmt
 ;
 exp:  object  { code2(constpush,(Inst)$1);}
       | VAR       {code3(varpush,(Inst)$1,eval);}
+      | ARG    {   defnonly("$"); $$ = code2(arg, (Inst)$1); }
       | asgn
       | exp '+' exp     { code(addo); }
       | exp '-' exp     { code(subo);  }
@@ -103,6 +129,8 @@ exp:  object  { code2(constpush,(Inst)$1);}
       | initarray '['arraylist']' {code(STOP);}
       | exp '[' exp ']' {code(aArray);}
       | exp '[' index ':' index ']' {code(getSubArray);}
+      | FUNCTION begin '(' arglist ')'
+         { $$ = $2; code3(call,(Inst)$1,(Inst)$4); }
   ;
 index: exp {}
 | {code(emptypush);}
@@ -119,11 +147,11 @@ int main (int argc, char *argv[]){
   progname=argv[0];
   init();
   if(argc==1){
-    printf("Lala Lang v1.4 \n[GCC 8.2.1 20181127]\n");
+    printf("Lala Lang v1.5 \n[GCC 8.2.1 20181127]\n");
     setjmp(begin);
     printf(">>> ");
     for(initcode(); yyparse (); initcode()){
-      execute(prog);
+      execute(progbase);
       printf(">>> ");
     }
   }
@@ -131,7 +159,7 @@ int main (int argc, char *argv[]){
     readfile = 1;
     yyin = fopen(argv[1],"r");
     for(initcode();yyparse();initcode()){
-      execute(prog);
+      execute(progbase);
     }
   }
   return 0;
@@ -151,4 +179,9 @@ void execerror(char *s, char *t)
   if(readfile)
     exit(1);
   longjmp(begin, 0);
+}
+void defnonly( char *s )     /* advertena la si hay definición i legal */
+{
+if (!indef)
+	execerror(s, "used outside definition");
 }

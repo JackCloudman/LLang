@@ -2,6 +2,7 @@
 #define __SYMBOL_H__
 #include "Lala.h"
 #include <string.h>
+typedef void (*Inst)();  /* instrucción de máquina */
 /*entrada a tabla de simbolos,
 es una lista simplemente ligada*/
 typedef struct Symbol {
@@ -11,6 +12,7 @@ typedef struct Symbol {
     union {
         LLObject* val;	       /* si es VAR */
         LLObject* (*ptr)();      /* sí es BLTIN */
+        Inst defn;
     } u;
 
     struct Symbol   *next;  /* para ligarse a otro */
