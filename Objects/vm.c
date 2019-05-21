@@ -8,16 +8,21 @@ static  Datum   *stackp;       /* siguiente lugar libre en la pila */
 Inst    prog[NPROG];    /* la máquina */
 Inst    *progp;         /* siguiente lugar libre para la generación de código */
 Inst    *pc;	/* contador de programa durante la ejecución */
+Inst   *progbase = prog; /* Inicie del subprograma actual */
+int    returning;      /* 1 si se ve la proposiolón de retorno */
 
 void initcode(){ /* inicialización para la generación de código */
     stackp = stack;
-    progp = prog;
+    progp = progbase;
+    stackp = stack;
+    fp = frame;
+    returning = 0;
 }
 
 void push(d)	/*  meter d en la pila  */
         Datum d;
 {
-    if (stackp >= &stack[NSTACK])
+    if (stackp == &stack[NSTACK])
         execerror("stack overflow", (char *) 0);
     *stackp++ = d;
 }
@@ -173,9 +178,9 @@ void ifcode(){
         execute(*((Inst   **)(savepc)));
     else if(*((Inst  **)(savepc+1)))   /*  ¿parte else?   */
         execute(*(( Inst  **) (savepc+1)));
-    pc  =  *((Inst  **)(savepc+2));	/*  siguiente proposición   */
+    if (!returning)
+        pc  =  *((Inst  **)(savepc+2));	/*  siguiente proposición   */
 }
-
 void whilecode(){
     Datum d;
     Inst *savepc = pc;
@@ -183,10 +188,12 @@ void whilecode(){
     d = pop();
     while(LL_CONDITION_EVAL(d.val)){
         execute(*((Inst  **)(savepc)));
+        if (returning) break;
         execute(savepc+2);
         d = pop();
     }
-    pc = *((Inst  **)(savepc+1));
+    if (!returning)
+        pc = *((Inst  **)(savepc+1));
 }
 
 void gt() {
@@ -260,6 +267,60 @@ void not( ){
     push(d);
 }
 
+void define(Symbol *sp){
+    sp->u.defn = (Inst)progbase;
+    progbase = progp;      /* el siguiente código comienza aquí */
+}
+
+void call() {
+    Symbol  *sp  =   (Symbol *)pc[0];   /*   entrada en tabla da simbolos  */
+    /*   para la función   */
+    if   (fp++   >=  &frame[NFRAME-1])
+        execerror(sp->name,   "call  nested too deeply");
+    fp->sp = sp;
+    fp->nargs =   (int)pc[1];
+    fp->retpc = pc  + 2;
+    fp->argn  =  stackp  -   1;     /*   último argumento   */
+    execute((Inst*)sp->u.defn);
+    returning = 0;
+}
+void ret( ) {
+    int i;
+    for (i = 0; i < fp->nargs; i++)
+        pop();  /* sacar argunentos de la pila */
+    pc = (Inst *)fp->retpc;
+    --fp;
+    returning = 1;
+}
+void funcret(){
+    Datum d;
+    d = pop();      /* conservar el valor de retorno de la func */
+    ret();
+    push(d);
+}
+void procret( ){
+    Datum d;
+    d.val = (LLObject*)LLNone_Make();
+    ret();
+    push(d);
+}
+LLObject** getarg( ) {
+    int nargs = (int) *pc++;
+    if (nargs > fp->nargs)
+        execerror(fp-> sp->name, "not enough arguments");
+    return &(fp->argn[nargs - fp->nargs].val);
+}
+void arg( ) {
+    Datum d;
+    d.val = *getarg();
+    push(d);
+}
+void argassign() {
+    Datum d;
+    d =pop();
+    push(d);       /* dejar valor en la pila */
+    *getarg() = d.val;
+}
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {
     Inst *oprogp = progp;
@@ -271,6 +332,6 @@ Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 
 void execute(Inst* p)	/*   ejecución con la máquina   */
 {
-    for (pc  =  p;   *pc != STOP; )
+    for (pc  =  p;*pc != STOP && !returning; )
         (*(*pc++))();
 }
