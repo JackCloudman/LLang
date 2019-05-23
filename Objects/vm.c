@@ -45,7 +45,15 @@ void varpush(){/* meter una variable a la pila   */
     d.sym  =  (Symbol   *)(*pc++);
     push(d);
 }
-
+void varfuncpush(){
+    Datum d;
+    d.sym  =  (Symbol   *)(*pc++);
+    Symbol* s = funclookup(d.sym->name,fp->vars);
+    if(s==0)
+        s = funcinstall(&(fp->vars),d.sym->name,INDEF,LLNone_Make());
+    d.sym = s;
+    push(d);
+}
 void eval( ){ /*  evaluar una variable en la pila   */
     Datum  d;
     d   =  pop();
@@ -267,8 +275,9 @@ void not( ){
     push(d);
 }
 
-void define(Symbol *sp){
+void define(Symbol *sp,int nargs){
     sp->u.defn = (Inst)progbase;
+    sp->nargs = nargs;
     progbase = progp;      /* el siguiente código comienza aquí */
 }
 
@@ -278,8 +287,15 @@ void call() {
     if   (fp++   >=  &frame[NFRAME-1])
         execerror(sp->name,   "call  nested too deeply");
     fp->sp = sp;
-    fp->nargs =   (int)pc[1];
+    if(sp->nargs!=(int)pc[1]){
+        if(sp->nargs>(int)pc[1])
+          execerror(fp-> sp->name, "() not enough arguments");
+        else
+            execerror(fp-> sp->name, "() received lot of arguments");
+    }
+    fp->nargs = sp->nargs;
     fp->retpc = pc  + 2;
+    fp->vars = 0;
     fp->argn  =  stackp  -   1;     /*   último argumento   */
     execute((Inst*)sp->u.defn);
     returning = 0;
@@ -314,6 +330,13 @@ void arg( ) {
     Datum d;
     d.val = *getarg();
     push(d);
+}
+void defassign(){
+    Datum d;
+    d = pop();
+    d.sym->u.val = *getarg();
+    d.sym->type = VAR;
+
 }
 void argassign() {
     Datum d;
