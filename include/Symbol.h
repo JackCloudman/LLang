@@ -14,7 +14,7 @@ typedef struct Symbol {
         LLObject* (*ptr)();      /* sí es BLTIN */
         Inst defn;
     } u;
-
+    int nargs;
     struct Symbol   *next;  /* para ligarse a otro */
 } Symbol;
 

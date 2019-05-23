@@ -28,11 +28,10 @@ int readfile = 0;
   int narg; //Numero de argumentos
 }
 %token <sym> FUNCTION RETURN FUNC PROC
-%token <narg> ARG
 %token <sym> object VAR BLTIN INDEF EXIT IF ELSE PRINT WHILE GLOBAL
 %type<inst> arraylist initarray asgn exp stmt stmtlist cond if end while begin
 %type <sym> procname
-%type <narg> arglist
+%type <narg> arglist argdef
 
 %right '='
 %left OR
@@ -65,7 +64,6 @@ asgn: VAR '=' exp { if($1->status==1){
                         }
                   }
     | exp '[' exp ']' '=' exp {code(ChangeValue);}
-    | ARG '=' exp { defnonly("$"); code2(argassign,(Inst)$1); $$=$3;}
 ;
 stmt: exp {code((Inst)pop);}
     | PRINT exp { code(print); $$ = $2;}
@@ -87,8 +85,13 @@ stmt: exp {code((Inst)pop);}
     | RETURN exp {defnonly( "return" ); $$ = $2; code(funcret);}
 ;
 defn:    FUNC procname { $2->type=FUNCTION; indef=1; }
-          '(' ')' stmt'\n' {code(procret); define($2); indef=0;}
+          '('argdef')' stmt'\n' {code(procret); define($2,$5);indef=0;}
         | GLOBAL VAR {$2->status=1;$2->type=VAR;}
+;
+
+argdef:  /* nada */   { $$ = 0; }
+    | VAR                 {$$ = 1;code2(varfuncpush,(Inst)$1);code2(defassign,(Inst)$$); }
+    | argdef ',' VAR     { $$ = $1 + 1;code2(varfuncpush,(Inst)$3);code2(defassign,(Inst)$$);}
 ;
 arglist:  /* nada */   { $$ = 0; }
     | exp                 { $$ = 1; }
@@ -118,7 +121,6 @@ exp:  object  { code2(constpush,(Inst)$1);}
                      code3(varfuncpush,(Inst)$1,eval);
                   }
                   }
-      | ARG    {   defnonly("$"); $$ = code2(arg, (Inst)$1); }
       | asgn
       | exp '+' exp     { code(addo); }
       | exp '-' exp     { code(subo);  }
@@ -158,7 +160,7 @@ int main (int argc, char *argv[]){
   progname=argv[0];
   init();
   if(argc==1){
-    printf("Lala Lang v1.5 \n[GCC 8.2.1 20181127]\n");
+    printf("Lala Lang v1.6 \n[GCC 8.2.1 20181127]\n");
     setjmp(begin);
     printf(">>> ");
     for(initcode(); yyparse (); initcode()){

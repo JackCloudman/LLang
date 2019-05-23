@@ -22,7 +22,6 @@ true True
 false False
 none None
 VAR [_]*[a-zA-Z][a-zA-Z0-9_]*
-ARG \${intnum}
 EXIT exit[\(][\)]
 %%
 > {return GT;}
@@ -42,7 +41,6 @@ def {return FUNC;}
 proc {return PROC;}
 return {return RETURN;}
 global {return GLOBAL;}
-{ARG} {int n=0;sscanf(yytext,"$%d",&n);yylval.narg =n;return ARG;}
 {true} {
     yylval.sym = install("",object,(LLObject*)LLBool_Make(1));
     return object;}

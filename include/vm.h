@@ -30,5 +30,5 @@ void  assign(), bltin(), varpush(), constpush(), print(),makeArray(),execute(Ins
 void aArray(),ChangeValue(),getSubArray(),emptypush(),ifcode(),whilecode();
 void gt(),ge(),lt(),le(),eq(),ne(),and(),or(),not();
 void call(), arg(), argassign();
-void funcret(), procret(),define();
+void funcret(), procret(),define(),defassign();
 #endif

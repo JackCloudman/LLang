@@ -275,8 +275,9 @@ void not( ){
     push(d);
 }
 
-void define(Symbol *sp){
+void define(Symbol *sp,int nargs){
     sp->u.defn = (Inst)progbase;
+    sp->nargs = nargs;
     progbase = progp;      /* el siguiente código comienza aquí */
 }
 
@@ -286,7 +287,13 @@ void call() {
     if   (fp++   >=  &frame[NFRAME-1])
         execerror(sp->name,   "call  nested too deeply");
     fp->sp = sp;
-    fp->nargs =   (int)pc[1];
+    if(sp->nargs!=(int)pc[1]){
+        if(sp->nargs>(int)pc[1])
+          execerror(fp-> sp->name, "() not enough arguments");
+        else
+            execerror(fp-> sp->name, "() received lot of arguments");
+    }
+    fp->nargs = sp->nargs;
     fp->retpc = pc  + 2;
     fp->vars = 0;
     fp->argn  =  stackp  -   1;     /*   último argumento   */
@@ -323,6 +330,13 @@ void arg( ) {
     Datum d;
     d.val = *getarg();
     push(d);
+}
+void defassign(){
+    Datum d;
+    d = pop();
+    d.sym->u.val = *getarg();
+    d.sym->type = VAR;
+
 }
 void argassign() {
     Datum d;
