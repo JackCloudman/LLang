@@ -45,7 +45,15 @@ void varpush(){/* meter una variable a la pila   */
     d.sym  =  (Symbol   *)(*pc++);
     push(d);
 }
-
+void varfuncpush(){
+    Datum d;
+    d.sym  =  (Symbol   *)(*pc++);
+    Symbol* s = funclookup(d.sym->name,fp->vars);
+    if(s==0)
+        s = funcinstall(&(fp->vars),d.sym->name,INDEF,LLNone_Make());
+    d.sym = s;
+    push(d);
+}
 void eval( ){ /*  evaluar una variable en la pila   */
     Datum  d;
     d   =  pop();
@@ -280,6 +288,7 @@ void call() {
     fp->sp = sp;
     fp->nargs =   (int)pc[1];
     fp->retpc = pc  + 2;
+    fp->vars = 0;
     fp->argn  =  stackp  -   1;     /*   último argumento   */
     execute((Inst*)sp->u.defn);
     returning = 0;

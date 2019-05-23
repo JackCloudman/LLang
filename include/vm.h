@@ -13,6 +13,7 @@ typedef struct Frame {     /* nivel da pila par» Huida a proc/func */
     Inst    *retpc;   /* dónde reanudar después del retorno */
     Datum  *argn;     /* n-esimo argumento en la pila */
     int    nargs;     /* número da argumentos */
+    Symbol* vars;
 } Frame;
 extern Datum pop();
 
@@ -25,7 +26,7 @@ Frame  frame[NFRAME] ;
 Frame   *fp;  /* apuntador a nivel */
 
 void eval(), addo(), subo(), mulo(), divo(),negate();
-void  assign(), bltin(), varpush(), constpush(), print(),makeArray(),execute(Inst* p);
+void  assign(), bltin(), varpush(), constpush(), print(),makeArray(),execute(Inst* p),varfuncpush();
 void aArray(),ChangeValue(),getSubArray(),emptypush(),ifcode(),whilecode();
 void gt(),ge(),lt(),le(),eq(),ne(),and(),or(),not();
 void call(), arg(), argassign();

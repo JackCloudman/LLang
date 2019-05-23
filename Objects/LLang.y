@@ -29,7 +29,7 @@ int readfile = 0;
 }
 %token <sym> FUNCTION RETURN FUNC PROC
 %token <narg> ARG
-%token <sym> object VAR BLTIN INDEF EXIT IF ELSE PRINT WHILE
+%token <sym> object VAR BLTIN INDEF EXIT IF ELSE PRINT WHILE GLOBAL
 %type<inst> arraylist initarray asgn exp stmt stmtlist cond if end while begin
 %type <sym> procname
 %type <narg> arglist
@@ -58,7 +58,12 @@ arraylist: arraylist','arraylist {}
       | exp {}
       | {$$=progp;}
 ;
-asgn: VAR '=' exp {code3(varpush,(Inst)$1,assign);}
+asgn: VAR '=' exp { if($1->status==1){
+                        code3(varpush,(Inst)$1,assign);}
+                    else{
+                        code3(varfuncpush,(Inst)$1,assign);
+                        }
+                  }
     | exp '[' exp ']' '=' exp {code(ChangeValue);}
     | ARG '=' exp { defnonly("$"); code2(argassign,(Inst)$1); $$=$3;}
 ;
@@ -83,6 +88,7 @@ stmt: exp {code((Inst)pop);}
 ;
 defn:    FUNC procname { $2->type=FUNCTION; indef=1; }
           '(' ')' stmt'\n' {code(procret); define($2); indef=0;}
+        | GLOBAL VAR {$2->status=1;$2->type=VAR;}
 ;
 arglist:  /* nada */   { $$ = 0; }
     | exp                 { $$ = 1; }
@@ -106,7 +112,12 @@ stmtlist: {$$=progp;}
       | stmtlist stmt
 ;
 exp:  object  { code2(constpush,(Inst)$1);}
-      | VAR       {code3(varpush,(Inst)$1,eval);}
+      | VAR       {if($1->status==1){ //Variable global
+                     code3(varpush,(Inst)$1,eval);
+                   }else{
+                     code3(varfuncpush,(Inst)$1,eval);
+                  }
+                  }
       | ARG    {   defnonly("$"); $$ = code2(arg, (Inst)$1); }
       | asgn
       | exp '+' exp     { code(addo); }

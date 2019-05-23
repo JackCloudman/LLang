@@ -41,6 +41,7 @@ print {return PRINT;}
 def {return FUNC;}
 proc {return PROC;}
 return {return RETURN;}
+global {return GLOBAL;}
 {ARG} {int n=0;sscanf(yytext,"$%d",&n);yylval.narg =n;return ARG;}
 {true} {
     yylval.sym = install("",object,(LLObject*)LLBool_Make(1));
@@ -54,7 +55,7 @@ return {return RETURN;}
 {VAR} {
   Symbol *s;
   if((s=lookup(yytext))==0)
-    s = install(yytext,INDEF,0);
+    s = install(yytext,INDEF,(LLObject*)LLNone_Make());
   yylval.sym = s;
   return s->type==INDEF?VAR:s->type;
 }

@@ -8,7 +8,7 @@ es una lista simplemente ligada*/
 typedef struct Symbol {
     char   *name;
     short   type;   /* VAR, BLTIN, UNDEF */
-
+    short status;
     union {
         LLObject* val;	       /* si es VAR */
         LLObject* (*ptr)();      /* sí es BLTIN */
@@ -18,6 +18,6 @@ typedef struct Symbol {
     struct Symbol   *next;  /* para ligarse a otro */
 } Symbol;
 
-Symbol *install(char *s,int t, LLObject*), *lookup(char *s);
+Symbol *install(char *s,int t, LLObject*), *lookup(char *s),*funclookup(char*s,Symbol*),*funcinstall(Symbol**,char *,int,LLObject*);
 typedef void (*Inst)();
 #endif
