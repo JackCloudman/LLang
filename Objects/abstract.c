@@ -306,6 +306,16 @@ LLObject* LL_FUNC_ATTRIB_ASSIGN(LLObject* a,LLObject*b,char* name){
     }
     return b;
 }
+void LL_FUNC_METHOD_ASSIGN(LLObject* a,Inst programa,int nargs,char* name){
+    Symbol *s = Attributelookup(name,a->attribute);
+    if(s==NULL) {
+        s = Attributeinstall(&(a->attribute), name, FUNCTION, (LLObject*)LLNone_Make());
+    }
+    s->type = FUNCTION;
+    s->u.defn = programa;
+    s->nargs = nargs;
+
+}
 LLObject* LL_FUNC_INFO(LLObject* a){
     printf("Type: %s\n",a->ob_type->name);
     printf("VALUE: ");
@@ -318,4 +328,16 @@ LLObject* LL_FUNC_INFO(LLObject* a){
         }
     }
     return (LLObject*)  LLNone_Make();
+}
+Symbol* LL_FUNC_GET_METHOD(LLObject* a,char*name){
+    if(a->ob_type==LLNoneTypeObject){
+        execerror("None object has no attribute", NULL);
+    }
+    Symbol* s = Attributelookup(name,a->attribute);
+    if(s==NULL){
+        char* error = malloc(sizeof(char)*30);
+        sprintf(error,"AttributeError: Object has no attribute %s ",name);
+        execerror(error, NULL);
+    }
+    return s;
 }
