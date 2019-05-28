@@ -29,5 +29,6 @@ LLBoolObject* LLBool_Make(short val){
     result->print = LLBool_print;
     result->to_String = LLBool_String;
     result->ob_type = LLBoolTypeObject;
+    result->attribute = 0;
     return result;
 }

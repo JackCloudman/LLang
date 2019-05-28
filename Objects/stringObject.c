@@ -24,6 +24,7 @@ LLStringObject* LLString_Make(char* cadena){
     result->print = LLString_print;
     result->ob_type = LLStringTypeObject;
     result->to_String = LLString_String;
+    result->attribute = 0;
     return result;
 }
 LLObject* LLString_CAT(LLObject* a,LLObject* b){

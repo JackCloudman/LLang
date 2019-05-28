@@ -1,5 +1,6 @@
 #include "abstract.h"
 #include "Lala.h"
+#include "y.tab.h"
 extern LLTypeObject* LLIntTypeObject;
 extern void execerror(char *s, char *t);
 // Implementaciones
@@ -281,4 +282,40 @@ LLObject* LL_FUNC_LEN(LLObject* a){
     if(a->ob_type==LLStringTypeObject)
         return (LLObject*) LLInt_Make(((LLStringObject*)a)->len);
     execerror("BLINT 'len' no implementado", NULL);
+}
+LLObject* LL_FUNC_GET_ATTRIB(LLObject* a,char*name){
+    if(a->ob_type==LLNoneTypeObject){
+        execerror("None object has no attribute", NULL);
+    }
+    Symbol* s = Attributelookup(name,a->attribute);
+    if(s==NULL){
+        char* error = malloc(sizeof(char)*30);
+        sprintf(error,"AttributeError: Object has no attribute %s ",name);
+        execerror(error, NULL);
+    }
+    return s->u.val;
+}
+LLObject* LL_FUNC_ATTRIB_ASSIGN(LLObject* a,LLObject*b,char* name){
+    Symbol *s = Attributelookup(name,a->attribute);
+    if(s==NULL) {
+        Attributeinstall(&(a->attribute), name, VAR, b);
+    }
+    else {
+        s->u.val = b;
+        s->type = VAR;
+    }
+    return b;
+}
+LLObject* LL_FUNC_INFO(LLObject* a){
+    printf("Type: %s\n",a->ob_type->name);
+    printf("VALUE: ");
+    LL_FUNC_PRINT(a,"\n");
+    if(a->attribute!=0){
+        printf("Attributes: \n");
+        for (Symbol* sp = a->attribute; sp != (Symbol *)0; sp = sp->next){
+            printf("%s: ",sp->name);
+            LL_FUNC_PRINT(sp->u.val,"\n");
+        }
+    }
+    return (LLObject*)  LLNone_Make();
 }

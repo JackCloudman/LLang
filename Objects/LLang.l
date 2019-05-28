@@ -2,8 +2,8 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include "Object.h"
 #include "Lala.h"
-#include "Symbol.h"
 #include "y.tab.h"
 extern LLIntObject* LLInt_Make(int);
 extern LLStringObject* LLString_Make(char*);

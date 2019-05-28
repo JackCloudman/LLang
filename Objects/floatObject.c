@@ -21,6 +21,7 @@ LLFloatObject* LLFloat_Make(double val){
     result->print = LLFloat_print;
     result->to_String = LLFloat_String;
     result->ob_type = LLFloatTypeObject;
+    result->attribute = 0;
     return result;
 }
 LLObject* LLFloat_ADD(LLObject* a,LLObject* b){

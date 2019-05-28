@@ -50,8 +50,15 @@ void varfuncpush(){
     d.sym  =  (Symbol   *)(*pc++);
     Symbol* s = funclookup(d.sym->name,fp->vars);
     if(s==0)
-        s = funcinstall(&(fp->vars),d.sym->name,INDEF,LLNone_Make());
+        s = funcinstall(&(fp->vars),d.sym->name,INDEF,(LLObject*)LLNone_Make());
     d.sym = s;
+    push(d);
+}
+void attributepush(){
+    Datum var,attrib,d;
+    var = pop();
+    attrib.sym = (Symbol   *)(*pc++);
+    d.val = LL_FUNC_GET_ATTRIB(var.sym->u.val,attrib.sym->name);
     push(d);
 }
 void eval( ){ /*  evaluar una variable en la pila   */
@@ -103,7 +110,18 @@ void negate()
     d.val =  LL_FUNC_NEGATE(d.val);
     push(d);
 }
-
+void atribassign(){
+    Datum var,exp;
+    var = pop();
+    exp = pop();
+    if (var.sym->type!= VAR){
+        execerror("assignment to non-variable", var.sym->name);
+    }
+    Datum d;
+    d.sym  =  (Symbol   *)(*pc++);
+    d.val = LL_FUNC_ATTRIB_ASSIGN(var.sym->u.val,exp.val,d.sym->name);
+    push(d);
+}
 void assign( ){
     Datum d1, d2;
     d1 = pop();

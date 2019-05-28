@@ -23,5 +23,8 @@ LLObject* LL_FUNC_AND(LLObject*,LLObject*);
 LLObject* LL_FUNC_OR(LLObject*,LLObject*);
 LLObject* LL_FUNC_NOT(LLObject*);
 LLObject* LL_FUNC_LEN(LLObject*);
+LLObject* LL_FUNC_GET_ATTRIB(LLObject* a,char*name);
+LLObject* LL_FUNC_ATTRIB_ASSIGN(LLObject* a,LLObject*b,char* name);
+LLObject* LL_FUNC_INFO(LLObject*);
 #define LL_NOT_IMPLEMENTED 0
 #endif

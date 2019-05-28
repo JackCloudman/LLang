@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include "Object.h"
 #include "Lala.h"
 #include "vm.h"
 #include "abstract.h"
@@ -64,6 +65,13 @@ asgn: VAR '=' exp { if($1->status==1){
                         }
                   }
     | exp '[' exp ']' '=' exp {code(ChangeValue);}
+    | VAR'.'VAR '=' exp {if($1->status==1){ //Variable global
+                       code2(varpush,(Inst)$1);
+                       }else{
+                       code2(varfuncpush,(Inst)$1);
+                       }
+                       code2(atribassign,(Inst)$3);
+                       }
 ;
 stmt: exp {code((Inst)pop);}
     | PRINT exp { code(print); $$ = $2;}
@@ -144,6 +152,13 @@ exp:  object  { code2(constpush,(Inst)$1);}
       | exp '[' index ':' index ']' {code(getSubArray);}
       | FUNCTION begin '(' arglist ')'
          { $$ = $2; code3(call,(Inst)$1,(Inst)$4); }
+      | VAR'.'VAR {if($1->status==1){ //Variable global
+                                     code2(varpush,(Inst)$1);
+                                   }else{
+                                     code2(varfuncpush,(Inst)$1);
+                                  }
+                                  code2(attributepush,(Inst)$3);
+                 }
   ;
 index: exp {}
 | {code(emptypush);}

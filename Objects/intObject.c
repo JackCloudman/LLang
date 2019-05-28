@@ -21,6 +21,7 @@ LLIntObject* LLInt_Make(int val){
   result->print = LLInt_print;
   result->to_String = LLInt_String;
   result->ob_type = LLIntTypeObject;
+    result->attribute = 0;
   return result;
 }
 LLObject* LLInt_ADD(LLObject* a,LLObject* b){

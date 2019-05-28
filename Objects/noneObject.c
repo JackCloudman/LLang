@@ -19,5 +19,6 @@ LLNoneObject* LLNone_Make(){
     result->print = LLNone_print;
     result->to_String = LLNone_String;
     result->ob_type = LLNoneTypeObject;
+    result->attribute = 0;
     return result;
 }
