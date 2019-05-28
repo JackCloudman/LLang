@@ -7,6 +7,7 @@ static struct {	/*	Predefinidos */
     LLObject* (*func)();
 } builtins[] =	{
         "len",	LL_FUNC_LEN,
+        "dir", LL_FUNC_INFO,
         0,	0
 };
 void init(){

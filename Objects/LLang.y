@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include "Object.h"
 #include "Lala.h"
 #include "vm.h"
 #include "abstract.h"
@@ -46,7 +47,7 @@ int readfile = 0;
 list:
   | list'\n'
   | list asgn '\n' {code2((Inst)pop,STOP);return 1;}
-  | list exp '\n'  { code2(print,STOP);return 1;}
+  | list exp '\n'  { code2(printS,STOP);return 1;}
   | list error '\n' {initcode();printf(">>> ");yyerrok;}
   | list stmt '\n' {code(STOP);return 1;}
   | list defn '\n' {code(STOP);return 1;}
@@ -64,6 +65,20 @@ asgn: VAR '=' exp { if($1->status==1){
                         }
                   }
     | exp '[' exp ']' '=' exp {code(ChangeValue);}
+    | VAR'.'VAR '=' exp {if($1->status==1){ //Variable global
+                       code2(varpush,(Inst)$1);
+                       }else{
+                       code2(varfuncpush,(Inst)$1);
+                       }
+                       code2(atribassign,(Inst)$3);
+                       }
+    | VAR'.'VAR'=' FUNCTION {if($1->status==1){ //Variable global
+                                 code2(varpush,(Inst)$1);
+                                  }else{
+                                   code2(varfuncpush,(Inst)$1);
+                                 }
+                                 code3(methodassign,(Inst)$3,(Inst)$5);
+                            }
 ;
 stmt: exp {code((Inst)pop);}
     | PRINT exp { code(print); $$ = $2;}
@@ -80,7 +95,7 @@ stmt: exp {code((Inst)pop);}
         ($1)[2] = (Inst)$6;
         ($1)[3] = (Inst)$7;
       }
-    | '{' stmtlist '}' {printf("...");$$=$2;}
+    | '{' stmtlist '}' {if(!readfile) printf("...");$$=$2;}
     | RETURN { defnonly("return"); code(procret); }
     | RETURN exp {defnonly( "return" ); $$ = $2; code(funcret);}
 ;
@@ -111,7 +126,7 @@ end:  '\n'{code(STOP);$$=progp;}
 begin:  /* nada */          { $$ = progp; }
 ;
 stmtlist: {$$=progp;}
-      | stmtlist '\n' {printf("... ");}
+      | stmtlist '\n' {if(!readfile) printf("... ");}
       | stmtlist stmt
 ;
 exp:  object  { code2(constpush,(Inst)$1);}
@@ -138,12 +153,27 @@ exp:  object  { code2(constpush,(Inst)$1);}
       | exp AND exp {code(and);}
       | exp OR exp {code(or);}
       | NOT exp {$$=$2;code(not);}
-      | EXIT {exit(0);}
+      | EXIT {code(exitprog);}
       | initarray '['arraylist']' {code(STOP);}
       | exp '[' exp ']' {code(aArray);}
       | exp '[' index ':' index ']' {code(getSubArray);}
       | FUNCTION begin '(' arglist ')'
          { $$ = $2; code3(call,(Inst)$1,(Inst)$4); }
+      | VAR'.'VAR {if($1->status==1){ //Variable global
+                                     code2(varpush,(Inst)$1);
+                                   }else{
+                                     code2(varfuncpush,(Inst)$1);
+                                  }
+                                  code2(attributepush,(Inst)$3);
+                 }
+      | VAR'.'procname begin '('arglist')' {if($1->status==1){ //Variable global
+                                              code2(varpush,(Inst)$1);
+                                              }else{
+                                              code2(varfuncpush,(Inst)$1);
+                                             }
+                                               code2(hasmethod,(Inst)$3);
+                                               $$ = $4; code2(callmethod,(Inst)$6);
+                                            }
   ;
 index: exp {}
 | {code(emptypush);}
@@ -160,7 +190,7 @@ int main (int argc, char *argv[]){
   progname=argv[0];
   init();
   if(argc==1){
-    printf("Lala Lang v1.6 \n[GCC 8.2.1 20181127]\n");
+    printf("Lala Lang v1.7 \n[GCC 8.2.1 20181127]\n");
     setjmp(begin);
     printf(">>> ");
     for(initcode(); yyparse (); initcode()){

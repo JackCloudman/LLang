@@ -33,6 +33,7 @@ LLEntryListObject* LLEntryList_Make(){
   n->print = LLList_print;
   n->ob_type = LLListTypeObject;
   n->to_String = LLList_String;
+  n->attribute = 0;
   return n;
 }
 LLListObject* LLList_Make(LLObject *o){

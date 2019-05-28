@@ -26,9 +26,10 @@ Frame  frame[NFRAME] ;
 Frame   *fp;  /* apuntador a nivel */
 
 void eval(), addo(), subo(), mulo(), divo(),negate();
-void  assign(), bltin(), varpush(), constpush(), print(),makeArray(),execute(Inst* p),varfuncpush();
+void  assign(), bltin(), varpush(), constpush(), print(),printS(),makeArray(),execute(Inst* p),varfuncpush();
 void aArray(),ChangeValue(),getSubArray(),emptypush(),ifcode(),whilecode();
 void gt(),ge(),lt(),le(),eq(),ne(),and(),or(),not();
 void call(), arg(), argassign();
-void funcret(), procret(),define(),defassign();
+void funcret(), procret(),define(),defassign(),atribassign(),attributepush(),methodassign(),hasmethod(),callmethod();
+void exitprog();
 #endif

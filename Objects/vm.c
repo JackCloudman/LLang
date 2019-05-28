@@ -50,8 +50,15 @@ void varfuncpush(){
     d.sym  =  (Symbol   *)(*pc++);
     Symbol* s = funclookup(d.sym->name,fp->vars);
     if(s==0)
-        s = funcinstall(&(fp->vars),d.sym->name,INDEF,LLNone_Make());
+        s = funcinstall(&(fp->vars),d.sym->name,INDEF,(LLObject*)LLNone_Make());
     d.sym = s;
+    push(d);
+}
+void attributepush(){
+    Datum var,attrib,d;
+    var = pop();
+    attrib.sym = (Symbol   *)(*pc++);
+    d.val = LL_FUNC_GET_ATTRIB(var.sym->u.val,attrib.sym->name);
     push(d);
 }
 void eval( ){ /*  evaluar una variable en la pila   */
@@ -103,7 +110,40 @@ void negate()
     d.val =  LL_FUNC_NEGATE(d.val);
     push(d);
 }
+void atribassign(){
+    Datum var,exp;
+    var = pop();
+    exp = pop();
+    if (var.sym->type!= VAR){
+        execerror("assignment to non-variable", var.sym->name);
+    }
+    Datum d;
+    d.sym  =  (Symbol   *)(*pc++);
+    d.val = LL_FUNC_ATTRIB_ASSIGN(var.sym->u.val,exp.val,d.sym->name);
+    push(d);
+}
+void methodassign(){
+    Datum var,function,method;
+    var = pop();
+    if (var.sym->type!= VAR){
+        execerror("assignment to non-variable", var.sym->name);
+    }
+    method.sym = (Symbol   *)(*pc++);
+    function.sym = (Symbol   *)(*pc++);
+    LL_FUNC_METHOD_ASSIGN(var.sym->u.val,function.sym->u.defn,function.sym->nargs,method.sym->name);
+    push(var);
 
+}
+void hasmethod(){
+    Datum var, function;
+    var = pop();
+    if (var.sym->type!= VAR){
+        execerror("assignment to non-variable", var.sym->name);
+    }
+    function.sym = (Symbol   *)(*pc++);
+    var.sym = LL_FUNC_GET_METHOD(var.sym->u.val,function.sym->name);
+    push(var);
+}
 void assign( ){
     Datum d1, d2;
     d1 = pop();
@@ -120,6 +160,12 @@ void print( ){
     Datum d;
     d = pop();
     LL_FUNC_PRINT(d.val,"\n");
+}
+void printS( ){
+    Datum d;
+    d = pop();
+    if(d.val->ob_type!=LLNoneTypeObject)
+        LL_FUNC_PRINT(d.val,"\n");
 }
 
 void bltin( )/*  evaluar un predefinido en el tope de la pila  */
@@ -300,6 +346,27 @@ void call() {
     execute((Inst*)sp->u.defn);
     returning = 0;
 }
+void callmethod() {
+    Datum d;
+    d = pop();
+    Symbol  *sp  = d.sym;   /*   entrada en tabla da simbolos  */
+    /*   para la función   */
+    if   (fp++   >=  &frame[NFRAME-1])
+        execerror(sp->name,   "call  nested too deeply");
+    fp->sp = sp;
+    if(sp->nargs!=(int)pc[0]){
+        if(sp->nargs>(int)pc[0])
+            execerror(fp-> sp->name, "() not enough arguments");
+        else
+            execerror(fp-> sp->name, "() received lot of arguments");
+    }
+    fp->nargs = sp->nargs;
+    fp->retpc = pc  + 1;
+    fp->vars = 0;
+    fp->argn  =  stackp  -   1;     /*   último argumento   */
+    execute((Inst*)sp->u.defn);
+    returning = 0;
+}
 void ret( ) {
     int i;
     for (i = 0; i < fp->nargs; i++)
@@ -343,6 +410,9 @@ void argassign() {
     d =pop();
     push(d);       /* dejar valor en la pila */
     *getarg() = d.val;
+}
+void exitprog(){
+    exit(0);
 }
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {
