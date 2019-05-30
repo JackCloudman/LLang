@@ -288,6 +288,8 @@ LLObject* LL_FUNC_GET_ATTRIB(LLObject* a,char*name){
         execerror("None object has no attribute", NULL);
     }
     Symbol* s = Attributelookup(name,a->attribute);
+    if(s->type==FUNCTION)
+        execerror("Call Method!", NULL);
     if(s==NULL){
         char* error = malloc(sizeof(char)*30);
         sprintf(error,"AttributeError: Object has no attribute %s ",name);
