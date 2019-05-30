@@ -205,8 +205,12 @@ int LLList_print(LLObject* o){
   LLListObject *aux = e->l_val;
   printf("[");
   while(aux->next!=(e->l_val)){
-    aux->o->print(aux->o);
-    printf(", ");
+    if(aux->o==e->l_val->o){
+      printf("[...], ");
+    }else{
+      aux->o->print(aux->o);
+      printf(", ");
+    }
     aux = aux->next;
   }
   aux->o->print(aux->o);
