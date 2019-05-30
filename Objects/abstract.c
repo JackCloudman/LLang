@@ -324,7 +324,10 @@ LLObject* LL_FUNC_INFO(LLObject* a){
         printf("Attributes: \n");
         for (Symbol* sp = a->attribute; sp != (Symbol *)0; sp = sp->next){
             printf("%s: ",sp->name);
-            LL_FUNC_PRINT(sp->u.val,"\n");
+            if(sp->type==VAR)
+              LL_FUNC_PRINT(sp->u.val,"\n");
+            else if(sp->type==FUNCTION)
+              printf("function\n");
         }
     }
     return (LLObject*)  LLNone_Make();
