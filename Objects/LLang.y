@@ -22,6 +22,7 @@ extern Inst *progp;
 extern FILE *yyin;
 extern Inst   *progbase;
 int readfile = 0;
+int lineno = 1;
 %}
 %union {
   Symbol *sym; //Tabla de simbolos
@@ -29,7 +30,7 @@ int readfile = 0;
   int narg; //Numero de argumentos
 }
 %token <sym> FUNCTION RETURN FUNC PROC
-%token <sym> object VAR BLTIN INDEF EXIT IF ELSE PRINT WHILE GLOBAL
+%token <sym> object VAR BLTIN INDEF EXIT IF ELSE PRINT WHILE GLOBAL INPUT
 %type<inst> arraylist initarray asgn exp stmt stmtlist cond if end while begin
 %type <sym> procname
 %type <narg> arglist argdef
@@ -40,6 +41,7 @@ int readfile = 0;
 %left GT GE LT LE EQ NE
 %left '+' '-'
 %left '*' '/'
+%left '.'
 %left UNARYMINUS NOT
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
@@ -58,7 +60,16 @@ arraylist: arraylist','arraylist {}
       | exp {}
       | {$$=progp;}
 ;
-asgn: VAR '=' exp { if($1->status==1){
+asgn: VAR'.'VAR'=' FUNCTION begin '(' arglist ')'
+                                 { code3(call,(Inst)$5,(Inst)$8);
+                                 if($1->status==1){ //Variable global
+                                                        code2(varpush,(Inst)$1);
+                                                        }else{
+                                                        code2(varfuncpush,(Inst)$1);
+                                                        }
+                                                        code2(atribassign,(Inst)$3);
+                                 }
+    | VAR '=' exp { if($1->status==1){
                         code3(varpush,(Inst)$1,assign);}
                     else{
                         code3(varfuncpush,(Inst)$1,assign);
@@ -122,6 +133,7 @@ if: IF {$$=code(ifcode);code3(STOP,STOP,STOP);}
 while: WHILE {$$= code3(whilecode,STOP,STOP);}
   ;
 end:  '\n'{code(STOP);$$=progp;}
+  | {code(STOP);$$=progp;}
   ;
 begin:  /* nada */          { $$ = progp; }
 ;
@@ -157,9 +169,10 @@ exp:  object  { code2(constpush,(Inst)$1);}
       | initarray '['arraylist']' {code(STOP);}
       | exp '[' exp ']' {code(aArray);}
       | exp '[' index ':' index ']' {code(getSubArray);}
+      | INPUT'('exp')' { code(printInput);$$ =code(varread); }
       | FUNCTION begin '(' arglist ')'
          { $$ = $2; code3(call,(Inst)$1,(Inst)$4); }
-      | VAR'.'VAR {if($1->status==1){ //Variable global
+      | VAR'.'procname {if($1->status==1){ //Variable global
                                      code2(varpush,(Inst)$1);
                                    }else{
                                      code2(varfuncpush,(Inst)$1);
@@ -214,6 +227,7 @@ void warning(char *s, char *t){
   fprintf (stderr, "%s",s);
   if(t)
     fprintf (stderr, "%s", t);
+  fprintf(stderr,"en la linea %d",lineno);
   fprintf(stderr,"\n");
 }
 void execerror(char *s, char *t)

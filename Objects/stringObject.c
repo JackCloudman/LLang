@@ -20,7 +20,7 @@ LLStringObject* LLString_Make(char* cadena){
     strncpy(c, cadena+1,len);
     c[len-1] = '\0';
     result->o_sval = c;
-    result->len = len;
+    result->len = len-1;
     result->print = LLString_print;
     result->ob_type = LLStringTypeObject;
     result->to_String = LLString_String;

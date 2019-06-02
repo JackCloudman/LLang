@@ -9,6 +9,7 @@ extern LLIntObject* LLInt_Make(int);
 extern LLStringObject* LLString_Make(char*);
 void RmWs(char* str);
 extern YYSTYPE yylval;
+extern int lineno;
 %}
 /* Add your Flex definitions here              */
 /* Some definitions are already provided to you*/
@@ -41,6 +42,7 @@ def {return FUNC;}
 proc {return PROC;}
 return {return RETURN;}
 global {return GLOBAL;}
+input {return INPUT;}
 {true} {
     yylval.sym = install("",object,(LLObject*)LLBool_Make(1));
     return object;}
@@ -69,8 +71,8 @@ global {return GLOBAL;}
  sscanf(yytext,"%lf",&dato);
  yylval.sym =  install("",object,(LLObject*) LLFloat_Make(dato));
  return object;}
-{op} |
-\n {return *yytext;}
+{op} {return *yytext;}
+\n {lineno++;return *yytext;}
 {ws} { /* Do nothing */ }
 [\[|\]|,:] {return *yytext;}
 . { return *yytext; }

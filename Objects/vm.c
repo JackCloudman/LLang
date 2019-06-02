@@ -159,7 +159,7 @@ void assign( ){
 void print( ){
     Datum d;
     d = pop();
-    LL_FUNC_PRINT(d.val,"\n");
+    LL_FUNC_PRINT_INPUT(d.val,"\n");
 }
 void printS( ){
     Datum d;
@@ -413,6 +413,45 @@ void argassign() {
 }
 void exitprog(){
     exit(0);
+}
+void varread(){
+    Datum d;
+    int i;
+    LLObject* val;
+    char* cad = leercadena();
+    if(cad==0)
+        execerror("input error",(char*)0);
+    char* cad2 = malloc(sizeof(char)*(strlen(cad)+3));
+    i = sprintf(cad2,"\"%s\"",cad);
+    cad2[i] = '\0';
+    val = (LLObject*)LLString_Make(cad2);
+    d.val = val;
+    push(d);
+    /*NADA POR AHORA*/
+}
+char* leercadena(){
+    char *cadena=(char*)calloc(1,sizeof(char));
+    int i=0;
+    char c;
+    setbuf(stdin,NULL);
+    while(1){
+        c=getchar();
+        if(c!='\n'){
+            cadena[i]=c;
+            i++;
+            cadena=(char*)realloc(cadena,sizeof(char)*(i+1));
+        }
+        else{
+            cadena[i]='\0';
+            break;
+        }
+    }
+    return cadena;
+}
+void printInput(){
+    Datum d;
+    d = pop();
+    LL_FUNC_PRINT_INPUT(d.val,NULL);
 }
 Inst   *code(Inst f) /*   instalar una instrucción u operando   */
 {
