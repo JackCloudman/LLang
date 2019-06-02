@@ -195,6 +195,19 @@ int LL_FUNC_PRINT(LLObject* o,char* end){
     }
     return 0;
 }
+int LL_FUNC_PRINT_INPUT(LLObject* o,char* end){
+    if(o==0){
+        return 0;
+    }
+    if(o->ob_type==LLStringTypeObject)
+        printf("%s",((LLStringObject*)o)->o_sval);
+    else
+     o->print(o);
+    if(end!=NULL){
+        printf("%s",end);
+    }
+    return 0;
+}
 double LL_CONDITION_EVAL(LLObject* o){
     double result = 0;
     if(o==NULL)
@@ -288,13 +301,13 @@ LLObject* LL_FUNC_GET_ATTRIB(LLObject* a,char*name){
         execerror("None object has no attribute", NULL);
     }
     Symbol* s = Attributelookup(name,a->attribute);
-    if(s->type==FUNCTION)
-        execerror("Call Method!", NULL);
     if(s==NULL){
         char* error = malloc(sizeof(char)*30);
         sprintf(error,"AttributeError: Object has no attribute %s ",name);
         execerror(error, NULL);
     }
+    if(s->type==FUNCTION)
+        execerror("Call Method!", NULL);
     return s->u.val;
 }
 LLObject* LL_FUNC_ATTRIB_ASSIGN(LLObject* a,LLObject*b,char* name){

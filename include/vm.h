@@ -32,4 +32,6 @@ void gt(),ge(),lt(),le(),eq(),ne(),and(),or(),not();
 void call(), arg(), argassign();
 void funcret(), procret(),define(),defassign(),atribassign(),attributepush(),methodassign(),hasmethod(),callmethod();
 void exitprog();
+void printInput(),varread();
+char* leercadena();
 #endif
