@@ -94,10 +94,8 @@ LLEntryListObject* LLList_getrange(LLEntryListObject* e,int* pos1,int* pos2){
         return NULL;
     }
   }
-  //if(pos1 !=0 && pos2!=0 && *pos1==*pos2)
-    //return 0;
-  if(start==end)
-      return 0;
+  if(pos1 !=0 || pos2!=0 && start==end)
+    return 0;
   while(start->next!=end){
     aux = LLList_append(aux,start->o);
     start = start->next;
@@ -205,7 +203,7 @@ int LLList_print(LLObject* o){
   LLListObject *aux = e->l_val;
   printf("[");
   while(aux->next!=(e->l_val)){
-    if(aux->o==e->l_val->o){
+    if(aux->o==o){
       printf("[...], ");
     }else{
       aux->o->print(aux->o);
