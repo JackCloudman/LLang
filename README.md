@@ -1,6 +1,5 @@
 # Lala Lang!
 This is a program language OOP using yacc and lex
-[![Run on Repl.it](https://repl.it/badge/github/JackCloudman/LLang)](https://repl.it/github/JackCloudman/LLang)
 ## Information
 ### Strings
 Show messages in your programs, now  you can put strings as:
@@ -29,4 +28,22 @@ arr[0] = 3 # Change array values
 x = y = [1,2,3] #Copy same reference
 x = [1,2,3] #To make different arrays merge second array with empty array
 y = x+[ ] # x and y are different arrays with same values
+```
+**Objects**
+```
+def Dog(name,color){
+  d = "Dog object"
+  d.name = name
+  d.color = color
+  return d
+}
+>> my_dog = Dog("Firu","black")
+>> my_dog.color
+>> black
+>>> dir(my_dog)
+Type: <type 'str'>
+VALUE: "Dog object"
+Attributes: 
+color: "black"
+name: "Firu"
 ```
