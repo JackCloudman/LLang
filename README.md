@@ -1,5 +1,6 @@
 # Lala Lang!
 This is a program language OOP using yacc and lex
+[![Run on Repl.it](https://repl.it/badge/github/JackCloudman/LLang)](https://repl.it/github/JackCloudman/LLang)
 ## Information
 ### Strings
 Show messages in your programs, now  you can put strings as:
